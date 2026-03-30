@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>StepSquad - Team Step Challenge</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d0f14;--surface:#161920;--border:#252830;--accent:#f0e040;--accent2:#40c8f0;--text:#e8e8f0;--muted:#7a7d8a}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;background-image:radial-gradient(ellipse at 20% 0%,rgba(64,200,240,.07) 0%,transparent 60%),radial-gradient(ellipse at 80% 100%,rgba(240,224,64,.05) 0%,transparent 60%)}
+.hidden{display:none!important}
+#view-auth{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem}
+.brand{font-family:'Bebas Neue',sans-serif;font-size:4rem;letter-spacing:.05em;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.2rem}
+.brand-sub{color:var(--muted);font-size:.85rem;margin-bottom:2.5rem;letter-spacing:.12em;text-transform:uppercase}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;width:100%;max-width:420px}
+.card h2{font-size:1.4rem;margin-bottom:1.5rem;font-weight:700}
+label{display:block;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.4rem;margin-top:1rem}
+input{width:100%;background:#0d0f14;border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;color:var(--text);font-size:1rem;outline:none;transition:border .2s;font-family:'DM Sans',sans-serif}
+input:focus{border-color:var(--accent2)}
+.avatar-grid{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem;max-height:240px;overflow-y:scroll;padding:.4rem .6rem .4rem .2rem;scrollbar-width:auto;scrollbar-color:#f0e040 #252830}
+.avatar-grid::-webkit-scrollbar{width:8px}.avatar-grid::-webkit-scrollbar-track{background:#252830;border-radius:4px}.avatar-grid::-webkit-scrollbar-thumb{background:var(--accent);border-radius:4px}
+.av-category{width:100%;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.3rem 0 .1rem;margin-top:.3rem}
+.av-btn{background:#0d0f14;border:2px solid var(--border);border-radius:8px;width:46px;height:46px;font-size:1.4rem;cursor:pointer;transition:border .15s,transform .1s}
+.av-btn:hover{border-color:var(--accent2);transform:scale(1.1)}
+.av-btn.selected{border-color:var(--accent);background:rgba(240,224,64,.1)}
+.btn{width:100%;padding:.85rem;margin-top:1.2rem;background:var(--accent);color:#0d0f14;font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.08em;border:none;border-radius:10px;cursor:pointer;transition:opacity .2s,transform .1s}
+.btn:hover{opacity:.9;transform:translateY(-1px)}
+.btn-sec{background:transparent;border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:.95rem;letter-spacing:0}
+.btn-sec:hover{border-color:var(--accent2)}
+#toggle-link{text-align:center;margin-top:1rem;font-size:.9rem;color:var(--muted)}
+#toggle-link a{color:var(--accent2);text-decoration:none}
+#view-waiting{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;text-align:center}
+.wait-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:3rem 2rem;max-width:380px;width:100%}
+.big-av{font-size:5rem;margin-bottom:1rem;animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.wait-card h2{font-family:'Bebas Neue',sans-serif;font-size:2.8rem;color:var(--accent);margin-bottom:.5rem}
+.wait-card p{color:var(--muted);font-size:.95rem;line-height:1.6}
+.team-badge{display:inline-block;margin:1.2rem 0;padding:.5rem 1.2rem;background:rgba(64,200,240,.1);border:1px solid rgba(64,200,240,.3);border-radius:100px;color:var(--accent2);font-weight:600;font-size:.9rem}
+.member-count{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--accent);margin-top:1rem;animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+#view-app{max-width:680px;margin:0 auto;padding:1.5rem}
+.app-header{display:flex;align-items:center;gap:1rem;padding:1rem 0 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1.5rem}
+.hav{font-size:2.2rem}
+.hgreet{flex:1}
+.hgreet h1{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:.04em}
+.hgreet p{color:var(--muted);font-size:.82rem}
+.logout-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:.78rem;padding:.4rem .9rem;border-radius:6px;cursor:pointer;transition:border .2s,color .2s}
+.logout-btn:hover{border-color:#f04040;color:#f04040}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin-bottom:1.2rem}
+.section-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:1rem}
+.steps-row{display:flex;gap:.8rem;align-items:flex-end}
+.steps-row input{flex:1}
+.steps-row .btn{width:auto;padding:.75rem 1.5rem;margin-top:0;font-size:1.1rem}
+#steps-msg{margin-top:.7rem;font-size:.88rem;color:var(--accent);min-height:1.2em}
+.lb-row{display:flex;align-items:center;gap:1rem;padding:.9rem 1rem;border-radius:10px;border:1px solid transparent;margin-bottom:.5rem;transition:background .2s}
+.lb-row:hover{background:#1a1d24}
+.lb-mine{background:rgba(240,224,64,.06)!important;border-color:rgba(240,224,64,.35)!important}
+.lb-rank{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;min-width:2.6rem;text-align:center}
+.lb-info{flex:1;min-width:0}
+.lb-team{font-weight:700;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.you-tag{font-size:.6rem;background:var(--accent);color:#0d0f14;border-radius:4px;padding:.1rem .4rem;font-weight:700;margin-left:.4rem;vertical-align:middle}
+.lb-members{color:var(--muted);font-size:.78rem;margin-top:.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-steps{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;color:var(--accent);text-align:right;white-space:nowrap;line-height:1}
+.lb-steps span{display:block;font-family:'DM Sans',sans-serif;font-size:.65rem;color:var(--muted);letter-spacing:.07em;text-transform:uppercase}
+.date-row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.date-btn{background:#0d0f14;border:1px solid var(--border);color:var(--muted);font-size:.82rem;padding:.45rem .9rem;border-radius:8px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.date-btn:hover{border-color:var(--accent2);color:var(--text)}
+.date-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(240,224,64,.08)}
+.lb-empty{text-align:center;padding:2.5rem;opacity:.4;font-size:.9rem}
+</style>
+</head>
+<body>
+
+<div id="view-auth">
+  <div class="brand">StepSquad</div>
+  <div class="brand-sub">Team Step Challenge</div>
+  <div class="card">
+    <h2 id="auth-title">Join the Challenge</h2>
+    <div id="signup-fields">
+      <label>Your Name</label>
+      <input type="text" id="signup-name" placeholder="e.g. Alex Chen"/>
+      <label>Pick an Avatar</label>
+      <div class="avatar-grid" id="avatar-picker"></div>
+      <input type="hidden" id="chosen-avatar"/>
+    </div>
+    <label>Email</label>
+    <input type="email" id="auth-email" placeholder="you@email.com"/>
+    <label>Password</label>
+    <input type="password" id="auth-pass" placeholder="min. 6 characters"/>
+    <button class="btn" id="btn-signup" onclick="doSignup()">Create Account and Join</button>
+    <button class="btn btn-sec hidden" id="btn-login" onclick="doLogin()">Log In</button>
+    <div id="toggle-link">Already joined? <a href="#" onclick="toggleAuthMode();return false;">Log in</a></div>
+  </div>
+</div>
+
+<div id="view-waiting" class="hidden">
+  <div class="wait-card">
+    <div class="big-av" id="waiting-avatar">honk</div>
+    <h2>You're in!</h2>
+    <p>Hi <strong id="waiting-name"></strong>! Waiting for teammates...</p>
+    <div class="team-badge">Team: <span id="waiting-team"></span></div>
+    <div class="member-count" id="waiting-members">1/3</div>
+    <p style="margin-top:1.5rem;font-size:.82rem;color:var(--muted)">Waiting for a teammate to join... You'll be matched with the next person who signs up.</p>
+    <p style="margin-top:.8rem;font-size:.78rem;color:var(--muted);opacity:.7">✓ Safe to close this tab — just reopen to check if you've been matched.</p>
+  </div>
+</div>
+
+<div id="view-app" class="hidden">
+  <div class="app-header">
+    <div class="hav" id="app-avatar">honk</div>
+    <div class="hgreet">
+      <h1 id="app-name">Hey!</h1>
+      <p>Keep stepping - your team needs you!</p>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">Log out</button>
+  </div>
+  <div class="section">
+    <div class="section-title">Log Steps</div>
+    <div class="date-row">
+      <button class="date-btn active" id="date-today" onclick="switchDate('today')">Today</button>
+      <button class="date-btn" id="date-yesterday" onclick="switchDate('yesterday')">Yesterday</button>
+      <button class="date-btn" id="date-custom-btn" onclick="switchDate('custom')">Pick a date</button>
+      <input type="date" id="date-custom-input" style="display:none;margin-top:.5rem;width:100%"/>
+    </div>
+    <div class="steps-row" style="margin-top:.8rem">
+      <input type="number" id="steps-input" placeholder="e.g. 8432" min="0"/>
+      <button class="btn" onclick="logSteps()">Save</button>
+    </div>
+    <div id="steps-msg"></div>
+  </div>
+  <div class="section">
+    <div class="section-title">Live Leaderboard</div>
+    <div id="leaderboard"><div class="lb-empty">Loading...</div></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, collection, getDocs, addDoc, query, where, serverTimestamp, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* ===== PASTE YOUR FIREBASE CONFIG HERE ===== */
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAL0L8sSDCCPLJ8V5DnIOSHaxRI5h6YJ7w",
+  authDomain: "walk-in-spring.firebaseapp.com",
+  projectId: "walk-in-spring",
+  storageBucket: "walk-in-spring.firebasestorage.app",
+  messagingSenderId: "268713221131",
+  appId: "1:268713221131:web:914cfe9023822163263b0e",
+  measurementId: "G-S14QEDNM8F"
+};
+/* =========================================== */
+
+const app2 = initializeApp(firebaseConfig);
+const auth = getAuth(app2);
+const db   = getFirestore(app2);
+
+const AVATARS = ["fox","bear","panda","lion","tiger","frog","butterfly","unicorn","octopus","penguin","eagle","dolphin","sunflower","guitar","pizza","lightning"];
+const EMOJI   = ["honk","honk","honk","honk","honk","honk","honk","honk","honk","honk","honk","honk","honk","honk","honk","honk"];
+const AV_EMOJI = {"fox":"honk","bear":"honk","panda":"honk","lion":"honk","tiger":"honk","frog":"honk","butterfly":"honk","unicorn":"honk","octopus":"honk","penguin":"honk","eagle":"honk","dolphin":"honk","sunflower":"honk","guitar":"honk","pizza":"honk","lightning":"honk"};
+const REAL_AVATARS = ["honk","honk","honk","honk","honk","honk","honk","honk","honk","honk","honk","honk","honk","honk","honk","honk"];
+const TEAM_NAMES = ["Significant Steppers","Walking on P<0.05","The Confidence Interval","Standard Deviants","Outlier Squad","Null Hypothesis Denied","The Covariates","Random Effects","Adverse Step Events","Intent to Walk","The Control Group","Per Protocol Pacers","Kaplan Walkers","The Cohort","Clean Data Club","Missing at Random","The Data Dictionaries","Query Resolved","Power Walkers (80%)","On Label Striders"];
+
+let currentUser = null, currentProfile = null, unsubLb = null;
+
+const el = id => document.getElementById(id);
+const show = id => el(id).classList.remove("hidden");
+const hide = id => el(id).classList.add("hidden");
+const todayStr = () => new Date().toISOString().slice(0,10);
+
+function showView(name){
+  ["auth","waiting","app"].forEach(v => hide("view-"+v));
+  show("view-"+name);
+}
+
+const AVLIST = ["fox_f","bear_f","panda_f","lion_f","tiger_f","frog_f","butterfly_f","unicorn_f","octopus_f","penguin_f","eagle_f","dolphin_f","sunflower_f","guitar_f","pizza_f","lightning_f"];
+const AV_MAP = {"fox_f":"honk","bear_f":"honk","panda_f":"honk","lion_f":"honk","tiger_f":"honk","frog_f":"honk","butterfly_f":"honk","unicorn_f":"honk","octopus_f":"honk","penguin_f":"honk","eagle_f":"honk","dolphin_f":"honk","sunflower_f":"honk","guitar_f":"honk","pizza_f":"honk","lightning_f":"honk"};
+
+const AVDATA = [
+  {k:"fox",e:"honk"},{k:"bear",e:"honk"},{k:"panda",e:"honk"},{k:"lion",e:"honk"},
+  {k:"tiger",e:"honk"},{k:"frog",e:"honk"},{k:"butterfly",e:"honk"},{k:"unicorn",e:"honk"},
+  {k:"octopus",e:"honk"},{k:"penguin",e:"honk"},{k:"eagle",e:"honk"},{k:"dolphin",e:"honk"},
+  {k:"sunflower",e:"honk"},{k:"guitar",e:"honk"},{k:"pizza",e:"honk"},{k:"lightning",e:"honk"}
+];
+
+const wrap = el("avatar-picker");
+const AVFINAL = [
+  // Animals
+  {k:"fox",e:"\u{1F98A}"},{k:"bear",e:"\u{1F43B}"},{k:"panda",e:"\u{1F43C}"},{k:"lion",e:"\u{1F981}"},
+  {k:"tiger",e:"\u{1F42F}"},{k:"frog",e:"\u{1F438}"},{k:"butterfly",e:"\u{1F98B}"},{k:"unicorn",e:"\u{1F984}"},
+  {k:"octopus",e:"\u{1F419}"},{k:"penguin",e:"\u{1F427}"},{k:"eagle",e:"\u{1F985}"},{k:"dolphin",e:"\u{1F42C}"},
+  {k:"wolf",e:"\u{1F43A}"},{k:"cat",e:"\u{1F408}"},{k:"dog",e:"\u{1F415}"},{k:"rabbit",e:"\u{1F407}"},
+  {k:"koala",e:"\u{1F428}"},{k:"deer",e:"\u{1F98C}"},{k:"monkey",e:"\u{1F412}"},{k:"parrot",e:"\u{1F99C}"},
+  {k:"flamingo",e:"\u{1F9A9}"},{k:"shark",e:"\u{1F988}"},{k:"dragon",e:"\u{1F409}"},{k:"phoenix",e:"\u{1F985}"},
+  // Sports & Activity
+  {k:"runner",e:"\u{1F3C3}"},{k:"cyclist",e:"\u{1F6B4}"},{k:"swimmer",e:"\u{1F3CA}"},{k:"hiker",e:"\u{1F9D7}"},
+  {k:"medalist",e:"\u{1F3C5}"},{k:"trophy",e:"\u{1F3C6}"},{k:"fire",e:"\u{1F525}"},{k:"rocket",e:"\u{1F680}"},
+  {k:"star",e:"\u2B50"},{k:"lightning",e:"\u26A1"},{k:"muscle",e:"\u{1F4AA}"},{k:"sneaker",e:"\u{1F45F}"},
+  // People
+  {k:"man_run",e:"🏃‍♂️"},{k:"woman_run",e:"🏃‍♀️"},
+  {k:"man_bike",e:"🚴‍♂️"},{k:"woman_bike",e:"🚴‍♀️"},
+  {k:"man_swim",e:"🏊‍♂️"},{k:"woman_swim",e:"🏊‍♀️"},
+  {k:"ninja",e:"🥷"},{k:"superhero_m",e:"🦸‍♂️"},{k:"superhero_f",e:"🦸‍♀️"},
+  {k:"elf",e:"🧝"},{k:"fairy",e:"🧚"},{k:"mage",e:"🧙"},
+  // Food & Fun
+  {k:"pizza",e:"\u{1F355}"},{k:"avocado",e:"\u{1F951}"},{k:"watermelon",e:"\u{1F349}"},{k:"banana",e:"\u{1F34C}"},
+  {k:"sunflower",e:"\u{1F33B}"},{k:"rainbow",e:"\u{1F308}"},{k:"guitar",e:"\u{1F3B8}"},{k:"diamond",e:"\u{1F48E}"}
+];
+
+wrap.innerHTML = 
+  '<div class="av-category">🐾 Animals</div>' +
+  AVFINAL.slice(0,24).map(a => '<button class="av-btn" data-k="'+a.k+'" data-e="'+a.e+'">'+a.e+'</button>').join("") +
+  '<div class="av-category">⚡ Sports & Energy</div>' +
+  AVFINAL.slice(24,36).map(a => '<button class="av-btn" data-k="'+a.k+'" data-e="'+a.e+'">'+a.e+'</button>').join("") +
+  '<div class="av-category">🧙 Characters</div>' +
+  AVFINAL.slice(36,48).map(a => '<button class="av-btn" data-k="'+a.k+'" data-e="'+a.e+'">'+a.e+'</button>').join("") +
+  '<div class="av-category">🍕 Food & Fun</div>' +
+  AVFINAL.slice(48).map(a => '<button class="av-btn" data-k="'+a.k+'" data-e="'+a.e+'">'+a.e+'</button>').join("");
+wrap.addEventListener("click", e => {
+  const btn = e.target.closest(".av-btn");
+  if(!btn) return;
+  wrap.querySelectorAll(".av-btn").forEach(b => b.classList.remove("selected"));
+  btn.classList.add("selected");
+  el("chosen-avatar").value = btn.dataset.e;
+});
+
+window.toggleAuthMode = function(){
+  const isSignup = !el("signup-fields").classList.contains("hidden");
+  if(isSignup){
+    hide("signup-fields");
+    el("auth-title").textContent = "Welcome back";
+    hide("btn-signup"); show("btn-login");
+    el("toggle-link").innerHTML = 'No account? <a href="#" onclick="toggleAuthMode();return false;">Sign up</a>';
+  } else {
+    show("signup-fields");
+    el("auth-title").textContent = "Join the Challenge";
+    show("btn-signup"); hide("btn-login");
+    el("toggle-link").innerHTML = 'Already joined? <a href="#" onclick="toggleAuthMode();return false;">Log in</a>';
+  }
+};
+
+window.doSignup = async function(){
+  const email  = el("auth-email").value.trim();
+  const pass   = el("auth-pass").value.trim();
+  const name   = el("signup-name").value.trim();
+  const avatar = el("chosen-avatar").value;
+  if(!name)  return alert("Please enter your name");
+  if(!avatar) return alert("Please pick an avatar");
+  if(pass.length < 6) return alert("Password must be at least 6 characters");
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    await updateProfile(cred.user, { displayName: name });
+    await setDoc(doc(db,"users",cred.user.uid),{ uid:cred.user.uid, name, avatar, email, teamId:null, joinedAt:serverTimestamp() });
+    await tryAssignTeam(cred.user.uid);
+  } catch(e){ alert(e.message); }
+};
+
+window.doLogin = async function(){
+  const email = el("auth-email").value.trim();
+  const pass  = el("auth-pass").value.trim();
+  try { await signInWithEmailAndPassword(auth, email, pass); }
+  catch(e){ alert(e.message); }
+};
+
+window.doLogout = async function(){
+  if(unsubLb) unsubLb();
+  await signOut(auth);
+};
+
+async function tryAssignTeam(uid){
+  // Guard: check if user is already in any team to prevent duplicate assignment
+  const allTeams = await getDocs(collection(db,"teams"));
+  for(const t of allTeams.docs){
+    const d = t.data();
+    if(d.members && d.members.includes(uid)){
+      await updateDoc(doc(db,"users",uid),{ teamId: t.id });
+      return; // already assigned, do nothing
+    }
+  }
+  const snap = await getDocs(query(collection(db,"teams"), where("open","==",true)));
+  let teamId = null;
+  for(const t of snap.docs){
+    const d = t.data();
+    // Double-check member not already in this team and slot is free
+    if(d.members && d.members.length < 2 && !d.members.includes(uid)){
+      teamId = t.id;
+      const newM = [...d.members, uid];
+      await updateDoc(doc(db,"teams",teamId),{ members:newM, open: newM.length < 2 });
+      break;
+    }
+  }
+  if(!teamId){
+    const name = TEAM_NAMES[Math.floor(Math.random()*TEAM_NAMES.length)];
+    const ref = await addDoc(collection(db,"teams"),{ name, members:[uid], open:true, totalSteps:0, createdAt:serverTimestamp() });
+    teamId = ref.id;
+  }
+  await updateDoc(doc(db,"users",uid),{ teamId });
+}
+
+onAuthStateChanged(auth, async user => {
+  if(!user){ currentUser=null; currentProfile=null; showView("auth"); return; }
+  currentUser = user;
+  const snap = await getDoc(doc(db,"users",user.uid));
+  if(!snap.exists()){ showView("auth"); return; }
+  currentProfile = snap.data();
+  if(!currentProfile.teamId){
+    await tryAssignTeam(user.uid);
+    currentProfile = (await getDoc(doc(db,"users",user.uid))).data();
+  }
+  const teamSnap = await getDoc(doc(db,"teams",currentProfile.teamId));
+  const td = teamSnap.data();
+  if(td && td.open){
+    showView("waiting");
+    el("waiting-avatar").textContent = currentProfile.avatar;
+    el("waiting-name").textContent   = currentProfile.name;
+    el("waiting-team").textContent   = td.name;
+    el("waiting-members").textContent= td.members.length + "/2 members";
+    const unsubW = onSnapshot(doc(db,"teams",currentProfile.teamId), s => {
+      const d = s.data();
+      el("waiting-members").textContent = d.members.length + "/2 members";
+      if(!d.open){ unsubW(); loadApp(); }
+    });
+    return;
+  }
+  loadApp();
+});
+
+let selectedDate = null; // currently selected date string YYYY-MM-DD
+
+function yesterdayStr(){
+  const d = new Date(); d.setDate(d.getDate()-1);
+  return d.toISOString().slice(0,10);
+}
+
+window.switchDate = async function(mode){
+  document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
+  const customInput = el('date-custom-input');
+  customInput.style.display = 'none';
+  if(mode==='today'){
+    selectedDate = todayStr();
+    el('date-today').classList.add('active');
+  } else if(mode==='yesterday'){
+    selectedDate = yesterdayStr();
+    el('date-yesterday').classList.add('active');
+  } else {
+    el('date-custom-btn').classList.add('active');
+    customInput.style.display = 'block';
+    customInput.max = todayStr();
+    customInput.value = selectedDate && selectedDate !== todayStr() && selectedDate !== yesterdayStr() ? selectedDate : yesterdayStr();
+    selectedDate = customInput.value;
+    customInput.oninput = async () => {
+      selectedDate = customInput.value;
+      await loadDateSteps();
+    };
+  }
+  await loadDateSteps();
+};
+
+async function loadDateSteps(){
+  el("steps-input").value = "";
+  el("steps-msg").textContent = "";
+  if(!selectedDate) return;
+  const ts = await getDoc(doc(db,"users/"+currentUser.uid+"/steps/"+selectedDate));
+  if(ts.exists()){
+    el("steps-input").value = ts.data().steps;
+    const label = selectedDate === todayStr() ? "Today" : selectedDate === yesterdayStr() ? "Yesterday" : selectedDate;
+    el("steps-msg").textContent = label + ": " + ts.data().steps.toLocaleString() + " steps logged — update and save again to change";
+  }
+}
+
+async function recalcTeamSteps(teamId, members){
+  // Read from cached totalSteps on each user doc — much cheaper
+  let total = 0;
+  for(const uid of members){
+    try{
+      const u = await getDoc(doc(db,"users",uid));
+      total += (u.exists() ? (u.data().totalSteps||0) : 0);
+    }catch{}
+  }
+  await updateDoc(doc(db,"teams",teamId),{ totalSteps: total });
+  return total;
+}
+
+async function loadApp(){
+  showView("app");
+  el("app-name").textContent   = currentProfile.name;
+  el("app-avatar").textContent = currentProfile.avatar;
+  selectedDate = todayStr();
+  el('date-today').classList.add('active');
+  await loadDateSteps();
+  if(unsubLb) unsubLb();
+  unsubLb = onSnapshot(collection(db,"teams"), snap => renderLeaderboard(snap.docs.map(d=>({id:d.id,...d.data()}))));
+}
+
+window.logSteps = async function(){
+  const steps = parseInt(el("steps-input").value);
+  if(isNaN(steps)||steps<0) return alert("Please enter a valid step count");
+  if(!selectedDate) return alert("Please select a date");
+  const sRef = doc(db,"users/"+currentUser.uid+"/steps/"+selectedDate);
+  await setDoc(sRef,{ steps, date:selectedDate });
+  // Recalc this user's total and cache it on their user doc
+  const userTotal = await recalcUserSteps(currentUser.uid);
+  await updateDoc(doc(db,"users",currentUser.uid),{ totalSteps: userTotal });
+  // Recalc team total from cached user totals
+  const uSnap = await getDoc(doc(db,"users",currentUser.uid));
+  const teamId = uSnap.data().teamId;
+  const tSnap = await getDoc(doc(db,"teams",teamId));
+  const members = tSnap.data().members || [];
+  await recalcTeamSteps(teamId, members);
+  const label = selectedDate === todayStr() ? "Today" : selectedDate === yesterdayStr() ? "Yesterday" : selectedDate;
+  el("steps-msg").textContent = "✓ " + label + ": " + steps.toLocaleString() + " steps saved!";
+};
+
+async function recalcUserSteps(uid){
+  // Full recount from subcollection — only called on save
+  try{
+    const stepsSnap = await getDocs(collection(db,"users/"+uid+"/steps"));
+    let total = 0;
+    stepsSnap.forEach(d => { total += (d.data().steps||0); });
+    return total;
+  }catch{ return 0; }
+}
+
+async function renderLeaderboard(teams){
+  const full = teams.filter(t=>!t.open).sort((a,b)=>(b.totalSteps||0)-(a.totalSteps||0));
+  const medals = ["\u{1F947}","\u{1F948}","\u{1F949}"];
+  const myId = currentProfile && currentProfile.teamId;
+  const rows = await Promise.all(full.map(async(team,i)=>{
+    let memberStr = "";
+    if(team.members){
+      const ns = await Promise.all(team.members.map(async uid=>{
+        try{
+          const u = await getDoc(doc(db,"users",uid));
+          if(!u.exists()) return "?";
+          const udata = u.data();
+          const userSteps = udata.totalSteps||0;
+          const stepsLabel = userSteps>0 ? ' <span style="color:var(--accent);font-size:.72rem;font-weight:600">'+userSteps.toLocaleString()+' steps</span>' : '';
+          return udata.avatar+" "+udata.name+stepsLabel;
+        }catch{ return "?"; }
+      }));
+      memberStr = ns.join("&nbsp;&nbsp;");
+    }
+    const isMe = team.id === myId;
+    const ytag = isMe ? '<span class="you-tag">YOU</span>' : "";
+    return '<div class="lb-row'+(isMe?" lb-mine":"")+'"><div class="lb-rank">'+(medals[i]||(i+1))+'</div><div class="lb-info"><div class="lb-team">'+team.name+ytag+'</div><div class="lb-members">'+memberStr+'</div></div><div class="lb-steps">'+((team.totalSteps||0).toLocaleString())+'<span>steps</span></div></div>';
+  }));
+  el("leaderboard").innerHTML = rows.length ? rows.join("") : '<div class="lb-empty">No full teams yet - invite friends!</div>';
+}
+</script>
+</body>
+</html>
