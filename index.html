@@ -169,6 +169,8 @@ const el = id => document.getElementById(id);
 const show = id => el(id).classList.remove("hidden");
 const hide = id => el(id).classList.add("hidden");
 const todayStr = () => new Date().toISOString().slice(0,10);
+const CONTEST_START = "2026-03-30";
+const CONTEST_END   = "2026-04-08";
 
 function showView(name){
   ["auth","waiting","app"].forEach(v => hide("view-"+v));
@@ -335,6 +337,8 @@ function yesterdayStr(){
 }
 
 window.switchDate = async function(mode){
+  if(mode==='yesterday' && yesterdayStr() < CONTEST_START) return;
+  if(mode==='today' && todayStr() > CONTEST_END) return alert("The challenge has ended (April 8).");
   document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
   const customInput = el('date-custom-input');
   customInput.style.display = 'none';
@@ -347,7 +351,8 @@ window.switchDate = async function(mode){
   } else {
     el('date-custom-btn').classList.add('active');
     customInput.style.display = 'block';
-    customInput.max = todayStr();
+    customInput.min = CONTEST_START;
+customInput.max = CONTEST_END < todayStr() ? CONTEST_END : todayStr();
     customInput.value = selectedDate && selectedDate !== todayStr() && selectedDate !== yesterdayStr() ? selectedDate : yesterdayStr();
     selectedDate = customInput.value;
     customInput.oninput = async () => {
@@ -398,6 +403,7 @@ window.logSteps = async function(){
   const steps = parseInt(el("steps-input").value);
   if(isNaN(steps)||steps<0) return alert("Please enter a valid step count");
   if(!selectedDate) return alert("Please select a date");
+  if(selectedDate < CONTEST_START || selectedDate > CONTEST_END) return alert("Steps can only be logged between March 30 – April 8.");
   const sRef = doc(db,"users/"+currentUser.uid+"/steps/"+selectedDate);
   await setDoc(sRef,{ steps, date:selectedDate });
   // Recalc this user's total and cache it on their user doc
