@@ -255,7 +255,7 @@ window.doSignup = async function(){
     const cred = await createUserWithEmailAndPassword(auth, email, pass);
     await updateProfile(cred.user, { displayName: name });
     await setDoc(doc(db,"users",cred.user.uid),{ uid:cred.user.uid, name, avatar, email, teamId:null, joinedAt:serverTimestamp() });
-    await tryAssignTeam(cred.user.uid);
+    // tryAssignTeam is handled by onAuthStateChanged to avoid race condition
   } catch(e){ alert(e.message); }
 };
 
